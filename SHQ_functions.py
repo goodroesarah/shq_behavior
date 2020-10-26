@@ -10,15 +10,16 @@ Created on Wed Mar 25 17:03:37 2020
 import pandas as pd
 import numpy as np
 import json
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import math
 from glob import glob
 
 ## get values for all path integration levels 
-flare_levels = [4,9,14,19,24,29,34,39,44,49,54,59,64,69,74]
-path_levels = [1,2,3,6,7,8,11,12,13,16,17,18,21,22,23,26,27,28,31,32,33,36,37,38,41,42]
-radial_levels = [1,2,3,4,5]
-repeat_levels = 43 
+## edit for old people paper
+#flare_levels = [4,9,14,19,24,29,34,39,44,49,54,59,64,69,74]
+path_levels = [1,6,8,11,16,43]
+#radial_levels = [1,2,3,4,5]
+#repeat_levels = 43 
 
 ## get distance travelled 
 def get_euclidian():
@@ -29,8 +30,8 @@ def get_euclidian():
         i += 1
     return dist
 
-def get_path_int_values(path_id):
-    path_df = pd.DataFrame(columns = ['level','complete','duration','map_view','distance','x','y','r'])
+def get_path_int_values(path_id,out_path,sub_id):
+    path_df = pd.DataFrame(columns = ['subID','level','complete','duration','map_view','distance','x','y','r'])
     row = 0
     global x
     global y
@@ -52,6 +53,7 @@ def get_path_int_values(path_id):
         y = np.array(5*traja.y)
         r = np.array(5*traja.r)
         
+        path_df.loc[row,'subID'] = sub_id
         path_df.loc[row,'level'] = l
         path_df.loc[row,'complete'] = test.meta.loc['early_termination']
         path_df.loc[row,'duration'] = test.meta.loc['duration']
@@ -64,10 +66,10 @@ def get_path_int_values(path_id):
         row += 1
         
     path_df.to_numpy()
-    np.save(path_id + 'path_levels.npy',path_df)
+    np.save(out_path + 'path/' + sub_id + '_path_levels.npy',path_df)
 
-def get_flare_values(path_id):
-    flare_df = pd.DataFrame(columns = ['level','complete','duration','flare_accuracy'])
+def get_flare_values(path_id,out_path,sub_id):
+    flare_df = pd.DataFrame(columns = ['subID','level','complete','duration','flare_accuracy'])
     row = 0
     for l in flare_levels:
         if l > 9:
@@ -80,6 +82,7 @@ def get_flare_values(path_id):
             
         test = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in data.items() ]))
         
+        flare_df.loc[row,'subID'] = sub_id
         flare_df.loc[row,'level'] = l
         flare_df.loc[row,'complete'] = test.meta.loc['early_termination']
         flare_df.loc[row,'duration'] = test.meta.loc['duration']
@@ -87,10 +90,10 @@ def get_flare_values(path_id):
         
         row += 1
     flare_df.to_numpy()
-    np.save(path_id + 'flare_levels.npy',flare_df)
+    np.save(out_path + 'flare/' + sub_id + '_flare_levels.npy',flare_df)
     
-def get_level_43(path_id):
-    repeat_df = pd.DataFrame(columns = ['level','complete','duration','map_view','distance','x','y','r'])
+def get_level_43(path_id,out_path,sub_id):
+    repeat_df = pd.DataFrame(columns = ['subID','level','complete','duration','map_view','distance','x','y','r'])
     row = 0
     global x
     global y
@@ -109,6 +112,7 @@ def get_level_43(path_id):
         y = np.array(5*traja.y)
         r = np.array(5*traja.r)
         
+        repeat_df.loc[row,'subID'] = sub_id
         repeat_df.loc[row,'level'] = 43
         repeat_df.loc[row,'complete'] = test.meta.loc['early_termination']
         repeat_df.loc[row,'duration'] = test.meta.loc['duration']
@@ -121,10 +125,10 @@ def get_level_43(path_id):
         row += 1
         
     repeat_df.to_numpy()
-    np.save(path_id + 'repeat_43.npy',repeat_df)
+    np.save(out_path + 'repeat/' + sub_id + '_repeat_43.npy',repeat_df)
     
-def get_radial_values(path_id):
-    radial_df = pd.DataFrame(columns = ['level','complete','duration','distance','radial_tech','probe_error','wm_error','x','y','r'])
+def get_radial_values(path_id,out_path,sub_id):
+    radial_df = pd.DataFrame(columns = ['subID','level','complete','duration','distance','radial_tech','probe_error','wm_error','x','y','r'])
     row = 0
     global x
     global y
@@ -178,7 +182,7 @@ def get_radial_values(path_id):
             wm_error += p2_track.count(5) - 2   
         wm_error = wm_error/ 2
         
-        
+        radial_df.loc[row,'subID'] = sub_id
         radial_df.loc[row,'level'] = l
         radial_df.loc[row,'complete'] = test.meta.loc['early_termination']
         radial_df.loc[row,'duration'] = test.meta.loc['duration']
@@ -194,4 +198,4 @@ def get_radial_values(path_id):
         row += 1
         
     radial_df.to_numpy()
-    np.save(path_id + 'radial_levels.npy',radial_df)
+    np.save(out_path + 'radial/' + sub_id + '_radial_levels.npy',radial_df)
